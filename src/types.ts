@@ -1,0 +1,1 @@
+type mediaTypes = "video" | "image";

@@ -1,10 +1,10 @@
 class Player {
-    players: any;
-    currentMediaExt: string;
-    container: HTMLElement;
-    extensions: { image: string[]; video: string[]; };
-    currentPlayer: any //HTMLVideoElement | HTMLImageElement | null;
-    currentDisplayedMedia: number | null;
+    private players: any;
+    private currentMediaExt: string;
+    private container: HTMLElement;
+    private extensions: { image: string[]; video: string[]; };
+    private currentPlayer: any //HTMLVideoElement | HTMLImageElement | null;
+    public currentDisplayedMedia: number | null;
     static default: typeof Player;
     constructor(container: HTMLElement | null) {
         if (!container) {
@@ -31,7 +31,7 @@ class Player {
         return void 0;
     }
 
-    createPlayer(type: "video" | "image"): HTMLElement {
+    createPlayer(type: mediaTypes): HTMLElement {
         switch (type) {
             case "video": {
                 const player  = document.createElement("video");
@@ -60,15 +60,13 @@ class Player {
         if (!playerType) throw new Error(`${ext} isn't a supported file type.`);
         this.currentMediaExt = ext;
         this.currentPlayer = this.players[playerType].cloneNode(true);
-        console.log(this.container, playerType, this.currentPlayer)
-        if (!this.currentPlayer) return;
+
         this.container.innerHTML = "";
         this.container.appendChild(this.currentPlayer);
         this.playNew(mediaUrl);
     }
 
     playNew(mediaUrl: string) {
-        console.log(this.container)
         this.currentPlayer.src = mediaUrl;
 
         switch (this.currentPlayer.tagName) {

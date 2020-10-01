@@ -32,6 +32,7 @@ var Main = /** @class */ (function () {
         };
     };
     Main.prototype.setBackground = function () {
+        document.body.style.backgroundSize = "100%";
         if (this.libOptions.backgroundImage) {
             document.body.style.backgroundColor = "";
             document.body.style.backgroundImage = "url(" + this.libOptions.backgroundImage + ")";

@@ -52,16 +52,12 @@ var Player = /** @class */ (function () {
             throw new Error(ext + " isn't a supported file type.");
         this.currentMediaExt = ext;
         this.currentPlayer = this.players[playerType].cloneNode(true);
-        console.log(this.container, playerType, this.currentPlayer);
-        if (!this.currentPlayer)
-            return;
         this.container.innerHTML = "";
         this.container.appendChild(this.currentPlayer);
         this.playNew(mediaUrl);
     };
     Player.prototype.playNew = function (mediaUrl) {
         var _this = this;
-        console.log(this.container);
         this.currentPlayer.src = mediaUrl;
         switch (this.currentPlayer.tagName) {
             case "VIDEO": {
