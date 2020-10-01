@@ -4,14 +4,16 @@ declare class Player {
     private container;
     private extensions;
     private currentPlayer;
-    currentDisplayedMedia: number | null;
+    private currentMediaId;
     static default: typeof Player;
     constructor(container: HTMLElement | null);
-    _findPlayerByExt(ext: string): string | undefined;
-    createPlayer(type: mediaTypes): HTMLElement;
-    update(mediaUrl: string): void;
-    switchPlayer(ext: string, mediaUrl: string): void;
-    playNew(mediaUrl: string): void;
+    private _findPlayerByExt;
+    setCurrentMediaId(id: number): this;
+    getCurrentMediaId(): number | null;
+    private createPlayer;
+    update(mediaUrl: string): Promise<unknown>;
+    private switchPlayer;
+    private playNew;
     remove(): void;
 }
 export default Player;

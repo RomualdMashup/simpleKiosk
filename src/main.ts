@@ -14,7 +14,7 @@ class Main {
             wsPort: 8080,
         };
         Object.assign(this.libOptions, options);
-        this.player = new KioskPlayer(document.getElementById("player_container"));
+        this.player = new KioskPlayer(this.libOptions.container);
         this.ws = new WebSocket(`ws://localhost:${this.libOptions.wsPort}`);
         this.handleWS();
         this.setBackground();
@@ -25,17 +25,21 @@ class Main {
             const msg = JSON.parse(event.data);
             switch (msg.eventType) {
                 case "add":
-                    this.player.update(medias[msg.id]);
-                    this.player.currentDisplayedMedia = msg.id;
+                    this.player.update(medias[msg.id]).then(() => {
+                        this.player.setCurrentMediaId(msg.id);
+                    }).catch((err) => {
+                        throw err;
+                    });
                     break;
                 case "remove":
-                    if (this.player.currentDisplayedMedia === msg.id) this.player.remove();
+                    console.log(this.player.getCurrentMediaId(), msg.id)
+                    if (this.player.getCurrentMediaId() === msg.id) this.player.remove();
                     break;
             }
         };
     }
 
-    setBackground() {
+    public setBackground() {
         document.body.style.backgroundSize = "100%";
         if (this.libOptions.backgroundImage) {
             document.body.style.backgroundColor = "";

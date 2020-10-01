@@ -1,3 +1,6 @@
 import MashupKiosk from "./dist/main.js";
 
-const kiosk = new MashupKiosk({backgroundImage: "https://w.wallhaven.cc/full/83/wallhaven-83kgyo.png"});
+const kiosk = new MashupKiosk({
+    backgroundImage: "https://w.wallhaven.cc/full/83/wallhaven-83kgyo.png",
+    container: document.getElementById("player_container"),
+});

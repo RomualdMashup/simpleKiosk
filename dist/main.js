@@ -9,7 +9,7 @@ var Main = /** @class */ (function () {
             wsPort: 8080,
         };
         Object.assign(this.libOptions, options);
-        this.player = new KioskPlayer(document.getElementById("player_container"));
+        this.player = new KioskPlayer(this.libOptions.container);
         this.ws = new WebSocket("ws://localhost:" + this.libOptions.wsPort);
         this.handleWS();
         this.setBackground();
@@ -20,11 +20,15 @@ var Main = /** @class */ (function () {
             var msg = JSON.parse(event.data);
             switch (msg.eventType) {
                 case "add":
-                    _this.player.update(medias[msg.id]);
-                    _this.player.currentDisplayedMedia = msg.id;
+                    _this.player.update(medias[msg.id]).then(function () {
+                        _this.player.setCurrentMediaId(msg.id);
+                    }).catch(function (err) {
+                        throw err;
+                    });
                     break;
                 case "remove":
-                    if (_this.player.currentDisplayedMedia === msg.id)
+                    console.log(_this.player.getCurrentMediaId(), msg.id);
+                    if (_this.player.getCurrentMediaId() === msg.id)
                         _this.player.remove();
                     break;
             }

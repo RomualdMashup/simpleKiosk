@@ -14,7 +14,7 @@ var Player = /** @class */ (function () {
         };
         this.currentMediaExt = "";
         this.currentPlayer = null;
-        this.currentDisplayedMedia = null;
+        this.currentMediaId = null;
     }
     Player.prototype._findPlayerByExt = function (ext) {
         for (var _i = 0, _a = Object.entries(this.extensions); _i < _a.length; _i++) {
@@ -23,6 +23,13 @@ var Player = /** @class */ (function () {
                 return key;
         }
         return void 0;
+    };
+    Player.prototype.setCurrentMediaId = function (id) {
+        this.currentMediaId = id;
+        return this;
+    };
+    Player.prototype.getCurrentMediaId = function () {
+        return this.currentMediaId;
     };
     Player.prototype.createPlayer = function (type) {
         switch (type) {
@@ -38,23 +45,31 @@ var Player = /** @class */ (function () {
         }
     };
     Player.prototype.update = function (mediaUrl) {
-        var ext = mediaUrl.split(".").pop() || "";
-        if (ext === this.currentMediaExt) {
-            this.playNew(mediaUrl);
-            return;
-        }
-        this.remove();
-        this.switchPlayer(ext, mediaUrl);
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            var ext = mediaUrl.split(".").pop() || "";
+            if (ext === _this.currentMediaExt) {
+                _this.playNew(mediaUrl);
+                return;
+            }
+            _this.remove();
+            var isSwitched = _this.switchPlayer(ext, mediaUrl);
+            if (isSwitched !== true)
+                reject(isSwitched);
+            else
+                resolve();
+        });
     };
     Player.prototype.switchPlayer = function (ext, mediaUrl) {
         var playerType = this._findPlayerByExt(ext);
         if (!playerType)
-            throw new Error(ext + " isn't a supported file type.");
+            return new Error(ext + " isn't a supported file type.");
         this.currentMediaExt = ext;
         this.currentPlayer = this.players[playerType].cloneNode(true);
         this.container.innerHTML = "";
         this.container.appendChild(this.currentPlayer);
         this.playNew(mediaUrl);
+        return true;
     };
     Player.prototype.playNew = function (mediaUrl) {
         var _this = this;
