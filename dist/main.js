@@ -27,7 +27,6 @@ var Main = /** @class */ (function () {
                     });
                     break;
                 case "remove":
-                    console.log(_this.player.getCurrentMediaId(), msg.id);
                     if (_this.player.getCurrentMediaId() === msg.id)
                         _this.player.remove();
                     break;

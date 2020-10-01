@@ -32,7 +32,6 @@ class Main {
                     });
                     break;
                 case "remove":
-                    console.log(this.player.getCurrentMediaId(), msg.id)
                     if (this.player.getCurrentMediaId() === msg.id) this.player.remove();
                     break;
             }
