@@ -5,8 +5,6 @@ const medias = [
     "https://file-examples-com.github.io/uploads/2017/04/file_example_MP4_640_3MG.mp4",
 ];
 
-document.body.style.backgroundImage = "url(https://w.wallhaven.cc/full/83/wallhaven-83kgyo.png)";
-
 class Main {
     libOptions: any;
     player: KioskPlayer;
