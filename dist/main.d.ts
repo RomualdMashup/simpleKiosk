@@ -1,8 +1,7 @@
-import KioskPlayer from "./Player.js";
 declare class Main {
-    libOptions: any;
-    player: KioskPlayer;
-    ws: WebSocket;
+    private libOptions;
+    private player;
+    private ws;
     constructor(options?: any);
     private handleWS;
     setBackground(): void;

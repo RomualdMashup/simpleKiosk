@@ -6,9 +6,9 @@ const medias = [
 ];
 
 class Main {
-    libOptions: any;
-    player: KioskPlayer;
-    ws: WebSocket;
+    private libOptions: any;
+    private player: KioskPlayer;
+    private ws: WebSocket;
     constructor(options?: any) {
         this.libOptions = {
             wsPort: 8080,
