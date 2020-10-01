@@ -57,25 +57,27 @@ class Player {
     public update(mediaUrl: string) {
         return new Promise((resolve, reject) => {
             const ext = mediaUrl.split(".").pop() || "";
+            this.remove();
             if (ext === this.currentMediaExt) {
                 this.playNew(mediaUrl);
                 return;
             }
-            this.remove();
-            const isSwitched = this.switchPlayer(ext, mediaUrl);
+            const isSwitched = this.switchPlayer(ext);
             if (isSwitched !== true) reject(isSwitched);
-            else resolve();
+            else {
+                this.playNew(mediaUrl);
+                resolve();
+            };
         });
     }
 
-    private switchPlayer(ext: string, mediaUrl: string) {
+    private switchPlayer(ext: string) {
         const playerType = this._findPlayerByExt(ext);
         if (!playerType) return new Error(`${ext} isn't a supported file type.`);
         this.currentMediaExt = ext;
         this.currentPlayer = this.players[playerType].cloneNode(true);
         this.container.innerHTML = "";
         this.container.appendChild(this.currentPlayer);
-        this.playNew(mediaUrl);
         return true;
     }
 

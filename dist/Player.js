@@ -48,19 +48,22 @@ var Player = /** @class */ (function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
             var ext = mediaUrl.split(".").pop() || "";
+            _this.remove();
             if (ext === _this.currentMediaExt) {
                 _this.playNew(mediaUrl);
                 return;
             }
-            _this.remove();
-            var isSwitched = _this.switchPlayer(ext, mediaUrl);
+            var isSwitched = _this.switchPlayer(ext);
             if (isSwitched !== true)
                 reject(isSwitched);
-            else
+            else {
+                _this.playNew(mediaUrl);
                 resolve();
+            }
+            ;
         });
     };
-    Player.prototype.switchPlayer = function (ext, mediaUrl) {
+    Player.prototype.switchPlayer = function (ext) {
         var playerType = this._findPlayerByExt(ext);
         if (!playerType)
             return new Error(ext + " isn't a supported file type.");
@@ -68,7 +71,6 @@ var Player = /** @class */ (function () {
         this.currentPlayer = this.players[playerType].cloneNode(true);
         this.container.innerHTML = "";
         this.container.appendChild(this.currentPlayer);
-        this.playNew(mediaUrl);
         return true;
     };
     Player.prototype.playNew = function (mediaUrl) {
