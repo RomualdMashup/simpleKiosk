@@ -2,8 +2,9 @@ declare class Main {
     private libOptions;
     private player;
     private ws;
-    constructor(options?: any);
+    private medias;
+    constructor(medias: string[], options: any);
     private handleWS;
-    setBackground(): void;
+    setBackground(): this;
 }
 export default Main;

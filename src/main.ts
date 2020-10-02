@@ -1,31 +1,28 @@
 import KioskPlayer from "./Player.js";
 
-const medias = [
-    "https://w.wallhaven.cc/full/ox/wallhaven-oxzk8m.jpg",
-    "https://file-examples-com.github.io/uploads/2017/04/file_example_MP4_640_3MG.mp4",
-];
-
 class Main {
     private libOptions: any;
     private player: KioskPlayer;
     private ws: WebSocket;
-    constructor(options?: any) {
+    private medias: string[];
+    constructor(medias: string[], options: any) {
+        this.medias = medias;
         this.libOptions = {
-            wsPort: 8080,
+            wsAddress: "ws://localhost:8080",
         };
         Object.assign(this.libOptions, options);
-        this.player = new KioskPlayer(this.libOptions.container);
-        this.ws = new WebSocket(`ws://localhost:${this.libOptions.wsPort}`);
+        this.player = new KioskPlayer(this.libOptions);
+        this.ws = new WebSocket(this.libOptions.wsAddress);
         this.handleWS();
         this.setBackground();
     }
 
-    private handleWS() {
+    private handleWS(): void {
         this.ws.onmessage = (event) => {
             const msg = JSON.parse(event.data);
             switch (msg.eventType) {
                 case "add":
-                    this.player.update(medias[msg.id]).then(() => {
+                    this.player.update(this.medias[msg.id]).then(() => {
                         this.player.setCurrentMediaId(msg.id);
                     }).catch((err) => {
                         throw err;
@@ -38,15 +35,16 @@ class Main {
         };
     }
 
-    public setBackground() {
+    public setBackground(): this {
         document.body.style.backgroundSize = "100%";
         if (this.libOptions.backgroundImage) {
             document.body.style.backgroundColor = "";
             document.body.style.backgroundImage = `url(${this.libOptions.backgroundImage})`;
-            return;
+            return this;
         } 
         document.body.style.backgroundImage = "";
         document.body.style.backgroundColor = "black";
+        return this;
     }
 }
 

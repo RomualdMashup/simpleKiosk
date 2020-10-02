@@ -1,23 +1,33 @@
+var allowedExts = {
+    image: ["jpg", "png"],
+    video: ["mp4"],
+};
+var playerStyle = {
+    position: "fixed",
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "100%",
+    zIndex: -100,
+    objectFit: "contain",
+};
 var Player = /** @class */ (function () {
-    function Player(container) {
-        if (!container) {
+    function Player(options) {
+        if (!options.container) {
             throw new Error("You need to specify a valid container.");
         }
-        this.container = container;
-        this.extensions = {
-            image: ["jpg", "png"],
-            video: ["mp4"],
-        };
+        this.options = options;
+        this.container = options.container;
         this.players = {
             video: this.createPlayer("video"),
             image: this.createPlayer("image"),
         };
         this.currentMediaExt = "";
-        this.currentPlayer = null;
         this.currentMediaId = null;
+        this.currentPlayerType = null;
     }
     Player.prototype._findPlayerByExt = function (ext) {
-        for (var _i = 0, _a = Object.entries(this.extensions); _i < _a.length; _i++) {
+        for (var _i = 0, _a = Object.entries(allowedExts); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], extensions = _b[1];
             if (extensions.includes(ext))
                 return key;
@@ -35,12 +45,19 @@ var Player = /** @class */ (function () {
         switch (type) {
             case "video": {
                 var player = document.createElement("video");
-                player.setAttribute("loop", "loop");
-                player.setAttribute("muted", "muted");
+                var videoOptions = this.options.video;
+                if (videoOptions.loop)
+                    player.setAttribute("loop", "");
+                if (videoOptions.mute)
+                    player.setAttribute("muted", "");
+                player.setAttribute("autoplay", "");
+                Object.assign(player.style, playerStyle);
                 return player;
             }
             case "image": {
-                return document.createElement("img");
+                var player = document.createElement("img");
+                Object.assign(player.style, playerStyle);
+                return player;
             }
         }
     };
@@ -48,45 +65,48 @@ var Player = /** @class */ (function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
             var ext = mediaUrl.split(".").pop() || "";
-            _this.remove();
             if (ext === _this.currentMediaExt) {
-                _this.playNew(mediaUrl);
+                _this.playNew(mediaUrl, resolve);
                 return;
             }
-            var isSwitched = _this.switchPlayer(ext);
-            if (isSwitched !== true)
+            var isSwitched = _this.switchPlayerType(ext);
+            if (isSwitched !== true) {
                 reject(isSwitched);
-            else {
-                _this.playNew(mediaUrl);
-                resolve();
+                return;
             }
-            ;
+            _this.playNew(mediaUrl, resolve);
         });
     };
-    Player.prototype.switchPlayer = function (ext) {
+    Player.prototype.switchPlayerType = function (ext) {
         var playerType = this._findPlayerByExt(ext);
         if (!playerType)
             return new Error(ext + " isn't a supported file type.");
         this.currentMediaExt = ext;
-        this.currentPlayer = this.players[playerType].cloneNode(true);
-        this.container.innerHTML = "";
-        this.container.appendChild(this.currentPlayer);
+        this.currentPlayerType = playerType;
         return true;
     };
-    Player.prototype.playNew = function (mediaUrl) {
+    Player.prototype.playNew = function (mediaUrl, resolve) {
         var _this = this;
-        this.currentPlayer.src = mediaUrl;
-        switch (this.currentPlayer.tagName) {
+        var newPlayer = this.players[this.currentPlayerType].cloneNode(true);
+        newPlayer.src = mediaUrl;
+        var appendAndPlay = function () {
+            _this.remove();
+            _this.container.appendChild(newPlayer);
+            resolve();
+        };
+        switch (newPlayer.tagName) {
             case "VIDEO": {
-                this.currentPlayer.addEventListener("canplay", function () { return _this.currentPlayer.play(); });
+                newPlayer.addEventListener("canplay", appendAndPlay);
+            }
+            case "IMG": {
+                newPlayer.addEventListener("load", appendAndPlay);
             }
         }
+        return this;
     };
     Player.prototype.remove = function () {
-        if (!this.currentPlayer)
-            return;
-        this.currentMediaExt = "";
-        this.currentPlayer.remove();
+        this.container.innerHTML = "";
+        return this;
     };
     return Player;
 }());
