@@ -9,7 +9,7 @@ const medias = [
 
 const kiosk = new MashupKiosk(medias, {
     wsAddress: "ws://localhost:8080",
-    backgroundImage: "https://w.wallhaven.cc/full/83/wallhaven-83kgyo.png",
+    backgroundMedia: "https://file-examples-com.github.io/uploads/2017/04/file_example_MP4_640_3MG.mp4",
     container: document.getElementById("player_container"),
     video: {
         loop: true,

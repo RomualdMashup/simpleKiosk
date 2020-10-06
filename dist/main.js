@@ -1,4 +1,6 @@
 import KioskPlayer from "./Player.js";
+import { getMediaTypeByUrl } from './helpers.js';
+import { videoBackground } from './Components.js';
 var Main = /** @class */ (function () {
     function Main(medias, options) {
         this.medias = medias;
@@ -32,12 +34,18 @@ var Main = /** @class */ (function () {
     };
     Main.prototype.setBackground = function () {
         document.body.style.backgroundSize = "100%";
-        if (this.libOptions.backgroundImage) {
-            document.body.style.backgroundColor = "";
-            document.body.style.backgroundImage = "url(" + this.libOptions.backgroundImage + ")";
+        if (this.libOptions.backgroundMedia) {
+            var bgType = getMediaTypeByUrl(this.libOptions.backgroundMedia);
+            console.log(bgType);
+            if (bgType === "image") {
+                document.body.style.backgroundImage = "url(" + this.libOptions.backgroundMedia + ")";
+            }
+            else if (bgType === "video") {
+                var videoBg = videoBackground(this.libOptions.backgroundMedia);
+                document.body.appendChild(videoBg);
+            }
             return this;
         }
-        document.body.style.backgroundImage = "";
         document.body.style.backgroundColor = "black";
         return this;
     };
