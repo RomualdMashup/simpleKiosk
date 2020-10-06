@@ -5,13 +5,15 @@ declare class Main {
     private medias;
     private afkMsg;
     private isAfk;
-    private afkTimer;
     private afkElapsedTime;
+    private backgroundElement;
     constructor(medias: string[], options: any);
-    private createAfkTitle;
     private setBaseCss;
     private handleWS;
+    private nextCallstackTasks;
     setBackground(): this;
+    hideBackground(): this;
+    showBackground(): this;
     setAfkScreen(): this;
 }
 export default Main;

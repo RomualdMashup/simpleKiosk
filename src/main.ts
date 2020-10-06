@@ -1,6 +1,7 @@
 import KioskPlayer from "./Player.js";
-import { getMediaTypeByUrl } from './helpers.js';
-import { videoBackground } from './Components.js';
+import { afkTimeout } from "./_GLOBALS.js";
+import { getMediaTypeByUrl } from "./helpers.js";
+import { videoBackground, imageBackground, afkTitle } from "./Components.js";
 
 class Main {
     private libOptions: any;
@@ -9,8 +10,8 @@ class Main {
     private medias: string[];
     private afkMsg: HTMLHeadingElement;
     private isAfk: boolean;
-    private afkTimer: any;
     private afkElapsedTime: number;
+    private backgroundElement: HTMLElement | null;
     constructor(medias: string[], options: any) {
         this.medias = medias;
         this.libOptions = {
@@ -19,12 +20,13 @@ class Main {
         Object.assign(this.libOptions, options);
         this.player = new KioskPlayer(this.libOptions);
         this.ws = new WebSocket(this.libOptions.wsAddress);
-        this.afkMsg = this.createAfkTitle();
+        this.afkMsg = afkTitle();
         this.isAfk = true;
         this.afkElapsedTime = 0;
-        this.afkTimer = setInterval(() => {
+        this.backgroundElement = null;
+        setInterval(() => {
             this.afkElapsedTime++;
-            if (this.afkElapsedTime >= 20 && !this.isAfk) {
+            if (this.afkElapsedTime >= afkTimeout && !this.isAfk) {
                 this.setAfkScreen();
             }
         }, 1000);
@@ -32,18 +34,7 @@ class Main {
         this.setBaseCss();
         this.setBackground();
         this.setAfkScreen();
-    }
-
-    private createAfkTitle(): HTMLHeadingElement {
-        const el =  document.createElement("h1");
-        el.style.textAlign = "center";
-        el.style.paddingTop = "30vh";
-        el.style.color = "white";
-        el.style.margin = "0";
-        el.style.transition = "opacity 0.15s linear";
-        el.style.cursor = "default";
-        el.textContent = "Cliquer pour commencer";
-        return el;
+        this.nextCallstackTasks();
     }
 
     private setBaseCss() {
@@ -53,55 +44,80 @@ class Main {
         document.documentElement.style.height = "100%";
         document.body.style.width = "100%";
         document.body.style.height = "100%";
+        document.body.style.overflow = "hidden";
+        this.libOptions.container.style.zIndex = "1";
+        this.libOptions.container.style.position = "absolute";
     }
 
     private handleWS(): void {
         this.ws.onmessage = (event) => {
+            this.afkElapsedTime = 0;
+            if (this.isAfk) return;
             const msg = JSON.parse(event.data);
             switch (msg.eventType) {
                 case "add":
-                    this.player.update(this.medias[msg.id]).then(() => {
-                        this.player.setCurrentMediaId(msg.id);
-                    }).catch((err) => {
-                        throw err;
-                    });
+                    this.player
+                        .update(this.medias[msg.id])
+                        .then(() => {
+                            this.player.setCurrentMediaId(msg.id);
+                            this.hideBackground();
+                        })
+                        .catch((err) => {
+                            throw err;
+                        });
                     break;
                 case "remove":
-                    if (this.player.getCurrentMediaId() === msg.id) this.player.remove();
+                    if (this.player.getCurrentMediaId() === msg.id) {
+                        this.player.remove();
+                        this.showBackground();
+                    } 
                     break;
             }
         };
     }
 
+    private nextCallstackTasks() {
+        setTimeout(() => {
+            document.body.style.transition = "box-shadow 0.25s linear";
+        }, 0);
+    }
+
     public setBackground(): this {
         document.body.style.backgroundSize = "100%";
         if (this.libOptions.backgroundMedia) {
-            const bgType = getMediaTypeByUrl(this.libOptions.backgroundMedia);
-            console.log(bgType)
-            if (bgType === "image") {
-                document.body.style.backgroundImage = `url(${this.libOptions.backgroundMedia})`;
-            } else if (bgType === "video") {
-                const videoBg = videoBackground(this.libOptions.backgroundMedia);
-                document.body.appendChild(videoBg);
-            }
-            return this;
-        } 
-
+            const bgType: string | false = getMediaTypeByUrl(this.libOptions.backgroundMedia);
+            const possibleTypes = {
+                image: imageBackground,
+                video: videoBackground,
+            } as any;
+            const bgEl = possibleTypes[bgType || "image"](this.libOptions.backgroundMedia);
+            this.backgroundElement = bgEl;
+            document.body.appendChild(bgEl);
+        }
         document.body.style.backgroundColor = "black";
+        return this;
+    }
+
+    public hideBackground(): this {
+        if(this.backgroundElement) this.backgroundElement.style.display = "none";
+        return this;
+    }
+
+    public showBackground(): this {
+        if(this.backgroundElement) this.backgroundElement.style.display = "block";
         return this;
     }
 
     public setAfkScreen(): this {
         document.body.appendChild(this.afkMsg);
         document.body.style.boxShadow = `inset 0px 0px  100px ${window.innerWidth}px rgba(0,0,0,0.60)`;
-        document.body.style.transition = "box-shadow 0.25s linear";
         this.afkMsg.style.opacity = "1";
         document.addEventListener("mousedown", () => {
             this.afkMsg.style.opacity = "0";
             document.body.style.boxShadow = `inset 0px 0px  100px ${window.innerWidth}px rgba(0,0,0,0)`;
             this.isAfk = false;
             this.afkElapsedTime = 0;
-        })
+        });
         return this;
     }
 }

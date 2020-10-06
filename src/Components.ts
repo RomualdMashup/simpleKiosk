@@ -1,12 +1,52 @@
 export const videoBackground = (src: string): HTMLVideoElement => {
-    const videoBg = document.createElement("video");
-    videoBg.setAttribute("muted", "");
-    videoBg.setAttribute("loop", "");
-    videoBg.setAttribute("autoplay", "");
-    videoBg.style.zIndex = "-1";
-    videoBg.style.width = "100%";
-    videoBg.style.margin = "0";
-    videoBg.style.padding = "0";
-    videoBg.src = src;
-    return videoBg;
+    const el = document.createElement("video");
+    el.style.zIndex = "-1";
+    el.style.width = "auto";
+    el.style.height = "auto";
+    el.style.minWidth = "100%";
+    el.style.minHeight = "100%";
+    el.style.margin = "0";
+    el.style.padding = "0";
+    el.style.position = "absolute";
+    el.style.top = "50%";
+    el.style.left = "50%";
+    el.style.transform = "translate(-50%,-50%)";
+    el.src = src;
+    el.muted = true;
+    el.loop = true;
+    el.autoplay = true;
+    return el;
+};
+
+export const imageBackground = (src: string): HTMLImageElement => {
+    const el = document.createElement("img");
+    el.style.zIndex = "-1";
+    el.style.width = "auto";
+    el.style.height = "auto";
+    el.style.minWidth = "100%";
+    el.style.minHeight = "100%";
+    el.style.margin = "0";
+    el.style.padding = "0";
+    el.style.position = "absolute";
+    el.style.top = "50%";
+    el.style.left = "50%";
+    el.style.transform = "translate(-50%,-50%)";
+    el.src = src;
+    return el;
+
+}
+
+export const afkTitle = (): HTMLHeadingElement => {
+    const el = document.createElement("h1");
+    el.style.textAlign = "center";
+    el.style.color = "white";
+    el.style.margin = "0";
+    el.style.transition = "opacity 0.15s linear";
+    el.style.cursor = "default";
+    el.textContent = "Cliquer pour commencer";
+    el.style.position = "absolute";
+    el.style.top = "50%";
+    el.style.left = "50%";
+    el.style.transform = "translate(-50%,-50%)";
+    return el;
 };
