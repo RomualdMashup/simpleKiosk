@@ -1,14 +1,19 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const path = require('path');
+const path = require("path");
 const port = process.env.port || 3000;
+const nocache = require("nocache");
 
-app.use("/dist", express.static(path.join(__dirname, '/../dist')));
-app.use("/public", express.static(path.join(__dirname, '/../')));
+app.use(nocache());
+app.set("etag", false);
 
-app.get('/',(req, res) => {
-  res.sendFile(path.join(__dirname, '/../index.html'));
+app.use("/dist", express.static(path.join(__dirname, "/../dist")));
+app.use("/css", express.static(path.join(__dirname, "/../css")));
+app.use("/public", express.static(path.join(__dirname, "/../")));
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "/../index.html"));
 });
 
 app.listen(port);
-console.log(`server listening on ${port}`)
+console.log(`server listening on ${port}`);
