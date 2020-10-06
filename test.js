@@ -13,6 +13,6 @@ const kiosk = new MashupKiosk(medias, {
     container: document.getElementById("player_container"),
     video: {
         loop: true,
-        mute: true
+        mute: false
     }
 });
