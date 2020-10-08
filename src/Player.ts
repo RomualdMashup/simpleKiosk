@@ -1,7 +1,5 @@
-const allowedExts = {
-    image: ["jpg", "png"],
-    video: ["mp4"],
-} as allowedExts
+import { allowedExts, loaderStart } from './_GLOBALS.js';
+import { loader } from './Components.js';
 
 const playerStyle = {
     position: "fixed",
@@ -13,6 +11,9 @@ const playerStyle = {
     objectFit: "contain",
 } as playerStyle
 
+/**
+ * Method starting with "_" : helper
+ */
 class Player {
     private players: any;
     private currentMediaExt: string;
@@ -20,6 +21,8 @@ class Player {
     private currentMediaId: number | null;
     private currentPlayerType: any;
     private options: any;
+    private loaderStartTimeout: any;
+    private loaderEl: HTMLDivElement;
     constructor(options: any) {
         if (!options.container) {
             throw new Error("You need to specify a valid container.");
@@ -33,8 +36,15 @@ class Player {
         this.currentMediaExt = "";
         this.currentMediaId = null;
         this.currentPlayerType = null;
+        this.loaderStartTimeout = null;
+        this.loaderEl = loader();
+        this.toggleLoader("off");
     }
-
+    /**
+     * Finds the right player for the input file extension
+     * 
+     * @param ext 
+     */
     private _findPlayerByExt(ext: string): string | undefined {
         for (const [key, extensions] of Object.entries(allowedExts)) {
             if (extensions.includes(ext)) return key;
@@ -42,6 +52,11 @@ class Player {
         return void 0;
     }
 
+    /**
+     * Once the loading is complete, sets the current id of the card displaying the last media
+     * 
+     * @param id 
+     */
     public setCurrentMediaId(id: number): this {
         this.currentMediaId = id;
         return this;
@@ -51,6 +66,12 @@ class Player {
         return this.currentMediaId;
     }
 
+    /**
+     * Creates a dom elements able to display the current media
+     * <img> for images, <video> for videos
+     * 
+     * @param type 
+     */
     private createPlayer(type: mediaTypes): HTMLElement {
         switch (type) {
             case "video": {
@@ -70,6 +91,11 @@ class Player {
         }
     }
 
+    /**
+     * updates the player when a new card has been placed
+     * 
+     * @param mediaUrl 
+     */
     public update(mediaUrl: string): Promise<any> {
         return new Promise((resolve, reject) => {
             const ext = mediaUrl.split(".").pop() || "";
@@ -86,6 +112,11 @@ class Player {
         });
     }
 
+    /**
+     * switches the type of player if a new media required a different one has to be displayed
+     * 
+     * @param ext 
+     */
     private switchPlayerType(ext: string): true | Error {
         const playerType = this._findPlayerByExt(ext);
         if (!playerType) return new Error(`${ext} isn't a supported file type.`);
@@ -94,13 +125,28 @@ class Player {
         return true;
     }
 
+    /**
+     * plays the new media appending the new tag to the dom,
+     * also sets up a loader which displays when a media takes more than the specified amount of time to load
+     * see loaderStart in _GLOBALS_
+     * 
+     * @param mediaUrl 
+     * @param resolve 
+     */
     private playNew(mediaUrl: string, resolve: Function): this {
         const newPlayer = this.players[this.currentPlayerType].cloneNode(true);
         newPlayer.src = mediaUrl;
 
+        clearTimeout(this.loaderStartTimeout);
+        this.loaderStartTimeout = setTimeout(() => {
+            this.toggleLoader("on");
+        }, loaderStart * 1000)
+
         const appendAndPlay = () => {
+            clearTimeout(this.loaderStartTimeout);
             this.remove();
             this.container.appendChild(newPlayer);
+            this.toggleLoader("off");
             resolve();
         }
         switch (newPlayer.tagName) {
@@ -114,6 +160,26 @@ class Player {
         return this;
     }
 
+    /**
+     * toggle the loader on and off
+     * 
+     * @param state 
+     */
+    toggleLoader(state: "on" | "off") {
+        const cases = {
+            on: () => {
+                document.body.appendChild(this.loaderEl);
+            },
+            off: () => {
+                this.loaderEl.remove();
+            }
+        } as { on: Function, off: Function }
+        cases[state]();
+    }
+
+    /**
+     * remove the current player from his container
+     */
     public remove(): this {
         this.container.innerHTML = "";
         return this;

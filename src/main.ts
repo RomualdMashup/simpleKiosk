@@ -78,6 +78,7 @@ class Main {
 
     private nextCallstackTasks() {
         setTimeout(() => {
+            // pour ne pas avoir l'effet de la transition css au démarrage de la page
             document.body.style.transition = "box-shadow 0.25s linear";
         }, 0);
     }

@@ -1,7 +1,5 @@
-var allowedExts = {
-    image: ["jpg", "png"],
-    video: ["mp4"],
-};
+import { allowedExts, loaderStart } from './_GLOBALS.js';
+import { loader } from './Components.js';
 var playerStyle = {
     position: "fixed",
     right: 0,
@@ -25,6 +23,9 @@ var Player = /** @class */ (function () {
         this.currentMediaExt = "";
         this.currentMediaId = null;
         this.currentPlayerType = null;
+        this.loaderStartTimeout = null;
+        this.loaderEl = loader();
+        this.toggleLoader("off");
     }
     Player.prototype._findPlayerByExt = function (ext) {
         for (var _i = 0, _a = Object.entries(allowedExts); _i < _a.length; _i++) {
@@ -89,9 +90,15 @@ var Player = /** @class */ (function () {
         var _this = this;
         var newPlayer = this.players[this.currentPlayerType].cloneNode(true);
         newPlayer.src = mediaUrl;
+        clearTimeout(this.loaderStartTimeout);
+        this.loaderStartTimeout = setTimeout(function () {
+            _this.toggleLoader("on");
+        }, loaderStart * 1000);
         var appendAndPlay = function () {
+            clearTimeout(_this.loaderStartTimeout);
             _this.remove();
             _this.container.appendChild(newPlayer);
+            _this.toggleLoader("off");
             resolve();
         };
         switch (newPlayer.tagName) {
@@ -103,6 +110,18 @@ var Player = /** @class */ (function () {
             }
         }
         return this;
+    };
+    Player.prototype.toggleLoader = function (state) {
+        var _this = this;
+        var cases = {
+            on: function () {
+                document.body.appendChild(_this.loaderEl);
+            },
+            off: function () {
+                _this.loaderEl.remove();
+            }
+        };
+        cases[state]();
     };
     Player.prototype.remove = function () {
         this.container.innerHTML = "";
