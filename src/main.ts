@@ -7,13 +7,11 @@ class Main {
     private libOptions: any;
     private player: KioskPlayer;
     private ws: WebSocket;
-    private medias: string[];
     private afkMsg: HTMLHeadingElement;
     private isAfk: boolean;
     private afkElapsedTime: number;
     private backgroundElement: HTMLElement | null;
-    constructor(medias: string[], options: any) {
-        this.medias = medias;
+    constructor(options: any) {
         this.libOptions = {
             wsAddress: "ws://localhost:8080",
         };
@@ -57,7 +55,7 @@ class Main {
             switch (msg.eventType) {
                 case "add":
                     this.player
-                        .update(this.medias[msg.id])
+                        .update(msg.mediaUrl)
                         .then(() => {
                             this.player.setCurrentMediaId(msg.id);
                             this.hideBackground();

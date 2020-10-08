@@ -3,9 +3,8 @@ import { afkTimeout } from "./_GLOBALS.js";
 import { getMediaTypeByUrl } from "./helpers.js";
 import { videoBackground, imageBackground, afkTitle } from "./Components.js";
 var Main = /** @class */ (function () {
-    function Main(medias, options) {
+    function Main(options) {
         var _this = this;
-        this.medias = medias;
         this.libOptions = {
             wsAddress: "ws://localhost:8080",
         };
@@ -49,7 +48,7 @@ var Main = /** @class */ (function () {
             switch (msg.eventType) {
                 case "add":
                     _this.player
-                        .update(_this.medias[msg.id])
+                        .update(msg.mediaUrl)
                         .then(function () {
                         _this.player.setCurrentMediaId(msg.id);
                         _this.hideBackground();
@@ -69,6 +68,7 @@ var Main = /** @class */ (function () {
     };
     Main.prototype.nextCallstackTasks = function () {
         setTimeout(function () {
+            // pour ne pas avoir l'effet de la transition css au démarrage de la page
             document.body.style.transition = "box-shadow 0.25s linear";
         }, 0);
     };
