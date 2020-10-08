@@ -24,6 +24,7 @@ class Player {
     private loaderStartTimeout: any;
     private loaderEl: HTMLDivElement;
     constructor(options: any) {
+        console.log(options)
         if (!options.container) {
             throw new Error("You need to specify a valid container.");
         }

@@ -7,13 +7,14 @@ class Main {
     private libOptions: any;
     private player: KioskPlayer;
     private ws: WebSocket;
-    private medias: string[];
     private afkMsg: HTMLHeadingElement;
     private isAfk: boolean;
     private afkElapsedTime: number;
     private backgroundElement: HTMLElement | null;
-    constructor(medias: string[], options: any) {
+    private medias: any;
+    constructor(medias: any, options: any) {
         this.medias = medias;
+        // default options
         this.libOptions = {
             wsAddress: "ws://localhost:8080",
         };
@@ -37,7 +38,10 @@ class Main {
         this.nextCallstackTasks();
     }
 
-    private setBaseCss() {
+    /**
+     * sets the base css for the document
+     */
+    private setBaseCss(): this {
         document.body.style.margin = "0";
         document.body.style.padding = "0";
         document.documentElement.style.width = "100%";
@@ -47,8 +51,12 @@ class Main {
         document.body.style.overflow = "hidden";
         this.libOptions.container.style.zIndex = "1";
         this.libOptions.container.style.position = "absolute";
+        return this;
     }
 
+    /**
+     * Handles the evnts sent by mashupOSC and updates the player
+     */
     private handleWS(): void {
         this.ws.onmessage = (event) => {
             this.afkElapsedTime = 0;
@@ -76,13 +84,20 @@ class Main {
         };
     }
 
-    private nextCallstackTasks() {
+    /**
+     * code executed after the player initialization
+     */
+    private nextCallstackTasks(): this {
         setTimeout(() => {
-            // pour ne pas avoir l'effet de la transition css au démarrage de la page
+            // Sets the transition property after the player is initialized so we don't see the first transition to the screensaver.
             document.body.style.transition = "box-shadow 0.25s linear";
         }, 0);
+        return this;
     }
 
+    /**
+     * Sets the document background, as specified in the options.
+     */
     public setBackground(): this {
         document.body.style.backgroundSize = "100%";
         if (this.libOptions.backgroundMedia) {
@@ -99,16 +114,25 @@ class Main {
         return this;
     }
 
+    /**
+     * Hides the background element.
+     */
     public hideBackground(): this {
         if(this.backgroundElement) this.backgroundElement.style.display = "none";
         return this;
     }
 
+    /**
+     * Shows the background element.
+     */
     public showBackground(): this {
         if(this.backgroundElement) this.backgroundElement.style.display = "block";
         return this;
     }
 
+    /**
+     * Shows the screensaver screen.
+     */
     public setAfkScreen(): this {
         document.body.appendChild(this.afkMsg);
         document.body.style.boxShadow = `inset 0px 0px  100px ${window.innerWidth}px rgba(0,0,0,0.60)`;

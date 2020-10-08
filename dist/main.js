@@ -6,6 +6,7 @@ var Main = /** @class */ (function () {
     function Main(medias, options) {
         var _this = this;
         this.medias = medias;
+        // default options
         this.libOptions = {
             wsAddress: "ws://localhost:8080",
         };
@@ -28,6 +29,9 @@ var Main = /** @class */ (function () {
         this.setAfkScreen();
         this.nextCallstackTasks();
     }
+    /**
+     * sets the base css for the document
+     */
     Main.prototype.setBaseCss = function () {
         document.body.style.margin = "0";
         document.body.style.padding = "0";
@@ -38,7 +42,11 @@ var Main = /** @class */ (function () {
         document.body.style.overflow = "hidden";
         this.libOptions.container.style.zIndex = "1";
         this.libOptions.container.style.position = "absolute";
+        return this;
     };
+    /**
+     * Handles the evnts sent by mashupOSC and updates the player
+     */
     Main.prototype.handleWS = function () {
         var _this = this;
         this.ws.onmessage = function (event) {
@@ -67,11 +75,19 @@ var Main = /** @class */ (function () {
             }
         };
     };
+    /**
+     * code executed after the player initialization
+     */
     Main.prototype.nextCallstackTasks = function () {
         setTimeout(function () {
+            // Sets the transition property after the player is initialized so we don't see the first transition to the screensaver.
             document.body.style.transition = "box-shadow 0.25s linear";
         }, 0);
+        return this;
     };
+    /**
+     * Sets the document background, as specified in the options.
+     */
     Main.prototype.setBackground = function () {
         document.body.style.backgroundSize = "100%";
         if (this.libOptions.backgroundMedia) {
@@ -87,16 +103,25 @@ var Main = /** @class */ (function () {
         document.body.style.backgroundColor = "black";
         return this;
     };
+    /**
+     * Hides the background element.
+     */
     Main.prototype.hideBackground = function () {
         if (this.backgroundElement)
             this.backgroundElement.style.display = "none";
         return this;
     };
+    /**
+     * Shows the background element.
+     */
     Main.prototype.showBackground = function () {
         if (this.backgroundElement)
             this.backgroundElement.style.display = "block";
         return this;
     };
+    /**
+     * Shows the screensaver screen.
+     */
     Main.prototype.setAfkScreen = function () {
         var _this = this;
         document.body.appendChild(this.afkMsg);
