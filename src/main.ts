@@ -12,6 +12,8 @@ class Main {
     private isAfk: boolean;
     private afkElapsedTime: number;
     private backgroundElement: HTMLElement | null;
+    private Micromodal: any;
+    currentlyShownModal: any;
     constructor(medias: string[], options: any) {
         this.medias = medias;
         this.libOptions = {
@@ -24,6 +26,9 @@ class Main {
         this.isAfk = true;
         this.afkElapsedTime = 0;
         this.backgroundElement = null;
+        // @ts-ignore
+        this.Micromodal = window.MicroModal;
+        this.Micromodal.init();
         setInterval(() => {
             this.afkElapsedTime++;
             if (this.afkElapsedTime >= afkTimeout && !this.isAfk) {
@@ -73,14 +78,30 @@ class Main {
                     } 
                     break;
             }
+            this.checkForModals(msg.id, msg.eventType);
         };
     }
 
-    private nextCallstackTasks() {
+    private nextCallstackTasks(): void {
         setTimeout(() => {
             // pour ne pas avoir l'effet de la transition css au démarrage de la page
             document.body.style.transition = "box-shadow 0.25s linear";
         }, 0);
+    }
+
+    private checkForModals(id: number, state: "add" | "remove"): this {
+        const options = this.libOptions.modals;
+        const modal = options.find((m: any) => m.mediaId === id);
+        if (modal) {
+            if (state === "add") {
+                this.currentlyShownModal = modal.modalDomId;
+                this.Micromodal.show(this.currentlyShownModal);
+            } else if (state === "remove") {
+                this.Micromodal.close(this.currentlyShownModal);
+            }
+            this.currentlyShownModal = "";
+        }
+        return this;
     }
 
     public setBackground(): this {

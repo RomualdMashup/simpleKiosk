@@ -16,6 +16,9 @@ var Main = /** @class */ (function () {
         this.isAfk = true;
         this.afkElapsedTime = 0;
         this.backgroundElement = null;
+        // @ts-ignore
+        this.Micromodal = window.MicroModal;
+        this.Micromodal.init();
         setInterval(function () {
             _this.afkElapsedTime++;
             if (_this.afkElapsedTime >= afkTimeout && !_this.isAfk) {
@@ -65,12 +68,29 @@ var Main = /** @class */ (function () {
                     }
                     break;
             }
+            _this.checkForModals(msg.id, msg.eventType);
         };
     };
     Main.prototype.nextCallstackTasks = function () {
         setTimeout(function () {
+            // pour ne pas avoir l'effet de la transition css au démarrage de la page
             document.body.style.transition = "box-shadow 0.25s linear";
         }, 0);
+    };
+    Main.prototype.checkForModals = function (id, state) {
+        var options = this.libOptions.modals;
+        var modal = options.find(function (m) { return m.mediaId === id; });
+        if (modal) {
+            if (state === "add") {
+                this.currentlyShownModal = modal.modalDomId;
+                this.Micromodal.show(this.currentlyShownModal);
+            }
+            else if (state === "remove") {
+                this.Micromodal.close(this.currentlyShownModal);
+            }
+            this.currentlyShownModal = "";
+        }
+        return this;
     };
     Main.prototype.setBackground = function () {
         document.body.style.backgroundSize = "100%";

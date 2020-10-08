@@ -14,8 +14,9 @@ const kiosk = new MashupKiosk(medias, {
     container: document.getElementById("player_container"),
     video: {
         loop: true,
-        mute: false
-    }
+        mute: false,
+    },
+    modals: [{ mediaId: 0, modalDomId: "modal_test", time: 4 }],
 });
 
 // "https://w.wallhaven.cc/full/83/wallhaven-83kgyo.png"

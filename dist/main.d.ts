@@ -7,10 +7,13 @@ declare class Main {
     private isAfk;
     private afkElapsedTime;
     private backgroundElement;
+    private Micromodal;
+    currentlyShownModal: any;
     constructor(medias: string[], options: any);
     private setBaseCss;
     private handleWS;
     private nextCallstackTasks;
+    private checkForModals;
     setBackground(): this;
     hideBackground(): this;
     showBackground(): this;
